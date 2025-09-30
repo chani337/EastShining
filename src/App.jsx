@@ -421,7 +421,7 @@ function LandingSections() {
           <span className="text-yellow-400">-</span>
         </div>
         <div>
-          푸터내용
+          푸터내용ㅇ
           
         </div>
       </footer>
