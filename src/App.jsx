@@ -62,7 +62,7 @@ export default function App() {
               </button>
               {openSignUp && (
                 <Popover>
-                  <p className="text-sm text-slate-500 mb-3">무료로 회원가입</p>
+                  <p className="text-sm text-slate-500 mb-3">무료 회원가입</p>
                   <div className="flex flex-col gap-3">
                     <AuthItem label="네이버로 회원가입" img={naverImg} />
                     <AuthItem label="카카오로 회원가입" img={kakaoImg} />
