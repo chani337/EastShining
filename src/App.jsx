@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const guideImg = "/fixed_face.png";
-const naverImg = "/naver.png";
-const kakaoImg = "/kakao.png";
-const googleImg = "/google.png";
+const guideImg = "./img/fixed_face.png";
+const naverImg = "./img/naver.png";
+const kakaoImg = "./img/kakao.png";
+const googleImg = "./img/google.png";
 
 export default function App() {
   // 헤더 팝오버
@@ -124,7 +124,7 @@ export default function App() {
               <img src={guideImg} alt="guide" className="w-11 h-11 rounded-full object-cover border" />
               <div className="text-sm px-4 rounded-lg border border-blue-300 bg-white/70">
                 저는 <b>SelfStar.AI</b> 가이드 <b>이빛나</b>라고 합니다. <br />
-                인플루언서의 <b>이름</b>과 <b>옵션</b> 및 <b>특징</b>을 <b>입력해주세요.</b>
+                인플루언서의 <b>이름</b>과 <b>옵션</b> 및 <b>특징</b>을 <b>입력</b>해주세요.
               </div>
             </div>
 
@@ -287,10 +287,10 @@ function Reveal({ children, from = "up", delay = 0 }) {
 
 /* ==== 랜딩 섹션 ==== */
 function LandingSections() {
-  const hero = "/hero.png";
-  const step1 = "/step1.png";
-  const step2 = "/step2.png";
-  const step3 = "/step3.png";
+  const hero = "./img/hero.png";
+  const step1 = "./img/step1.png";
+  const step2 = "./img/step2.png";
+  const step3 = "./img/step3.png";
 
   return (
     <section className="bg-[#ecf5ff]/50 border-t">
@@ -413,6 +413,18 @@ function LandingSections() {
           </Reveal>
         </div>
       </div>
+
+      <footer className="bg-blue-400">
+        <div>
+          <span className="text-yellow-400">-</span>
+          <span className="text-blue-600 text-sm font-semibold">SelfStar.AI</span>
+          <span className="text-yellow-400">-</span>
+        </div>
+        <div>
+          푸터내용
+          
+        </div>
+      </footer>
     </section>
   );
 }
