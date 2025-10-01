@@ -168,6 +168,7 @@ export default function App() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {/* 회원가입 팝오버 */}
             <div className="relative" ref={signRef}>
               <button
                 className={"btn-ghost " + (openSignUp ? "ring-2 ring-slate-300" : "")}
@@ -183,14 +184,15 @@ export default function App() {
                 <Popover>
                   <p className="text-sm text-slate-500 mb-3">무료 회원가입</p>
                   <div className="flex flex-col gap-3">
-                    <AuthItem label="네이버로 회원가입" img={naverImg} />
-                    <AuthItem label="카카오로 회원가입" img={kakaoImg} />
-                    <AuthItem label="Google로 회원가입" img={googleImg} />
+                    <AuthItem label="네이버로 회원가입" img={naverImg} href="http://localhost:4000/auth/naver" />
+                    <AuthItem label="카카오로 회원가입" img={kakaoImg} href="http://localhost:4000/auth/kakao" />
+                    <AuthItem label="Google로 회원가입" img={googleImg} href="http://localhost:4000/auth/google" />
                   </div>
                 </Popover>
               )}
             </div>
 
+            {/* 로그인 팝오버 */}
             <div className="relative" ref={loginRef}>
               <button
                 className={"btn-ghost " + (openLogin ? "ring-2 ring-slate-300" : "")}
@@ -206,9 +208,9 @@ export default function App() {
                 <Popover>
                   <p className="text-sm text-slate-500 mb-3">간편 로그인</p>
                   <div className="flex flex-col gap-3">
-                    <AuthItem label="네이버로 로그인" img={naverImg} />
-                    <AuthItem label="카카오로 로그인" img={kakaoImg} />
-                    <AuthItem label="Google로 로그인" img={googleImg} />
+                    <AuthItem label="네이버로 로그인" img={naverImg} href="http://localhost:4000/auth/naver" />
+                    <AuthItem label="카카오로 로그인" img={kakaoImg} href="http://localhost:4000/auth/kakao" />
+                    <AuthItem label="Google로 로그인" img={googleImg} href="http://localhost:4000/auth/google" />
                   </div>
                 </Popover>
               )}
@@ -225,7 +227,7 @@ export default function App() {
         </Routes>
       </main>
 
-      {/* ✅ 전역 푸터: 한 번만 렌더 */}
+      {/* 전역 푸터: 한 번만 렌더 */}
       <Footer />
     </div>
   );
@@ -253,16 +255,19 @@ function Field({ label, hint, children }) {
   );
 }
 
-function AuthItem({ label, img }) {
+function AuthItem({ label, img, href }) {
   return (
-    <button
+    <a
+      href={href}
       className="w-full flex items-center justify-start gap-3 px-6 py-3 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition"
-      onClick={() => alert(`${label} (OAuth 연동 예정)`)}
-      type="button"
     >
-      {img ? <img src={img} alt="" className="w-5 h-5 object-contain" /> : <span className="w-3 h-3 rounded-full bg-slate-400" />}
+      {img ? (
+        <img src={img} alt="" className="w-5 h-5 object-contain" />
+      ) : (
+        <span className="w-3 h-3 rounded-full bg-gray-300" />
+      )}
       <span>{label}</span>
-    </button>
+    </a>
   );
 }
 
