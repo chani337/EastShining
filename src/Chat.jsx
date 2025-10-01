@@ -74,8 +74,8 @@ const avatarFromName = (name) =>
 
 /* ---------------- page ---------------- */
 export default function Chat() {
-  // 단일 프로필(좌측 패널 제거)
-  const current = { name: "이루시", avatar: avatarFromName("이루시") };
+  // 단일 프로필
+  const current = { name: "이빛나", avatar: avatarFromName("이빛나") };
 
   // 채팅 메시지
   const [messages, setMessages] = useState([
@@ -83,7 +83,7 @@ export default function Chat() {
       id: 1,
       role: "assistant",
       text:
-        "○○님께서 만든 인플루언서 이루시입니다.\n우측 도우미에서 캡션/해시태그를 바로 복사하세요.",
+        "○○님께서 만든 인플루언서 이빛나입니다.\n우측 도우미에서 캡션/해시태그를 바로 복사하세요.",
       ts: Date.now() - 5000,
     },
   ]);
@@ -135,18 +135,11 @@ export default function Chat() {
     setIsGenerating(false);
   };
 
-  /**
-   * 레이아웃 메모
-   * - 헤더 높이를 h-16(64px)로 가정 → 아래 영역을 정확히 채우기 위해 calc(100vh-4rem)
-   * - 큰 그리드 컨테이너: 고정 높이 + min-h-0 (자식 스크롤 허용)
-   * - 가운데(main) / 오른쪽(aside)만 overflow-y-auto로 스크롤
-   * - 컴포저는 main 내부에서 sticky bottom-0 로 고정
-   */
   return (
     <div className="px-4 py-3 grid grid-cols-12 gap-4 h-[calc(100vh-4rem)] min-h-0">
-      {/* 가운데: 채팅 칼럼 (스크롤 전용) */}
+      {/* 가운데: 채팅 (스크롤 전용) */}
       <main className="col-span-12 xl:col-span-8 rounded-xl border bg-white/80 backdrop-blur flex flex-col min-h-0">
-        {/* 헤더 (고정) */}
+        {/* 헤더 */}
         <div className="px-4 py-3 border-b flex items-center gap-3">
           <img src={current.avatar} alt="avatar" className="size-8 rounded-full" />
           <div className="flex-1">
@@ -199,7 +192,7 @@ export default function Chat() {
           ))}
         </div>
 
-        {/* 컴포저: sticky bottom (항상 화면 하단에 보이도록) */}
+        {/* 컴포저: sticky bottom */}
         <div className="px-4 py-3 border-t bg-white/90 sticky bottom-0 z-10">
           <div className="flex flex-wrap items-center gap-3 mb-2">
             <div className="flex items-center gap-2">
