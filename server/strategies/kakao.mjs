@@ -8,11 +8,11 @@ passport.use(
     {
       clientID: process.env.KAKAO_CLIENT_ID,
       callbackURL: "http://localhost:4000/auth/kakao/callback"
-      // ❌ scope 제거 → 기본적으로 닉네임, 프로필 이미지는 제공됨
+      // scope 제거 → 기본적으로 닉네임, 프로필 이미지는 제공됨
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        console.log("✅ Kakao profile:", profile); // 디버깅용 출력
+        console.log("Kakao profile:", profile); // 디버깅용 출력
 
         const kakaoId = profile.id.toString();
         let user = await findUserByInherent(kakaoId);
@@ -28,7 +28,7 @@ passport.use(
 
         return done(null, user);
       } catch (err) {
-        console.error("❌ Kakao Strategy Error:", err);
+        console.error("Kakao Strategy Error:", err);
         return done(err, null);
       }
     }

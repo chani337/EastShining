@@ -1,5 +1,3 @@
-// server/controllers/middlewares/error.mjs
-
 // 404 핸들러
 export function notFound(req, res, next) {
   res.status(404).json({ message: `Not Found - ${req.originalUrl}` });
@@ -7,7 +5,7 @@ export function notFound(req, res, next) {
 
 // 에러 핸들러
 export function errorHandler(err, req, res, next) {
-  console.error("❌ Error:", err.stack);
+  console.error("Error:", err.stack);
 
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode).json({
