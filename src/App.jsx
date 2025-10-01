@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Routes, Route, NavLink, Link } from "react-router-dom";
 import MyPage from "./MyPage.jsx";
+import Chat from "./Chat.jsx";
 import Footer from "/components/Footer.jsx";
 
 const base = "px-3 py-1.5 rounded-full transition";
@@ -160,7 +161,8 @@ export default function App() {
             <NavLink to="/" end className={({ isActive }) => `${base} ${isActive ? active : idle}`}>
               홈
             </NavLink>
-            <Link to="/chat" className={`${base} ${idle}`}>채팅</Link>
+            <Link to="/chat" className={({ isActive }) => `${base} ${isActive ? active : idle}`}>
+              채팅</Link>
             <NavLink to="/mypage" className={({ isActive }) => `${base} ${isActive ? active : idle}`}>
               마이페이지
             </NavLink>
@@ -224,6 +226,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/chat" element={<Chat />} />
         </Routes>
       </main>
 
