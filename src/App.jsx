@@ -157,16 +157,35 @@ export default function App() {
             <span className="text-yellow-400">-</span>
           </div>
     
-          <nav className="hidden md:flex items-center gap-3 text-sm font-semibold ml-36">
-            <NavLink to="/" end className={({ isActive }) => `${base} ${isActive ? active : idle}`}>
+          <nav className="hidden md:flex items-center gap-5 md:gap-7 text-sm font-semibold ml-36">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) => `${base} ${isActive ? active : idle}`}
+              >
               홈
             </NavLink>
-            <Link to="/chat" className={({ isActive }) => `${base} ${isActive ? active : idle}`}>
-              채팅</Link>
-            <NavLink to="/mypage" className={({ isActive }) => `${base} ${isActive ? active : idle}`}>
-              마이페이지
+
+            <NavLink
+              to="/chat"
+              className={({ isActive }) => `${base} ${isActive ? active : idle}`}
+              >
+              채팅
             </NavLink>
-            <Link to="/alerts" className={`${base} ${idle}`}>알림</Link>
+
+            <NavLink
+              to="/mypage"
+              className={({ isActive }) => `${base} ${isActive ? active : idle}`}
+               >
+               마이페이지
+            </NavLink>
+
+            <NavLink
+                to="/alerts"
+                className={({ isActive }) => `${base} ${isActive ? active : idle}`}
+                >
+                알림
+            </NavLink>
           </nav>
 
           <div className="flex items-center gap-3">
