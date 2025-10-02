@@ -65,18 +65,29 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true })
 })
 
-// 인증 상태 확인(프론트 refresh에서 쓰는 엔드포인트)
-app.get('/auth/me', (req, res) => {
-  // passport를 쓰지 않는 경우엔 req.session을 직접 확인하도록 변경
-  if (req.isAuthenticated && req.isAuthenticated()) {
-    return res.json({ ok: true, user: req.user })
-  }
-   return res.json({ ok: true, authenticated: false, user: null });
-})
-
 // 라우트
 app.use("/api/posts", postsRoute)
 app.use("/auth", authRoute)
+
+// 로그인 상태 확인(비로그인도 200으로 통일해 콘솔 깔끔)
+app.get("/auth/me", (req, res) => {
+  const row = req.user || null;
+  if (row) {
+    return res.json({
+      ok: true,
+      authenticated: true,
+      user: {
+        id: row.user_id,
+        inherent: row.user_inherent,
+        nick: row.user_nick || row.user_name || null,
+        img: row.user_img || null,
+        platform: row.user_platform || null,
+      },
+    });
+  }
+  return res.json({ ok: true, authenticated: false, user: null });
+});
+
 
 // 에러 핸들러
 app.use(notFound)

@@ -15,7 +15,7 @@ const pool = mysql.createPool({
 export async function findUserByInherent(user_inherent) {
   const [rows] = await pool.query(
     "SELECT * FROM ss_user WHERE user_inherent = ?",
-    [user_inherent]
+    [uinherent]
   );
   return rows[0];
 }
