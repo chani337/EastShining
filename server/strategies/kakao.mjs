@@ -7,7 +7,7 @@ passport.use(
   new KakaoStrategy(
     {
       clientID: process.env.KAKAO_CLIENT_ID,
-      callbackURL: "http://localhost:4000/auth/kakao/callback"
+      callbackURL: "/auth/kakao/callback"
       // scope 제거 → 기본적으로 닉네임, 프로필 이미지는 제공됨
     },
     async (accessToken, refreshToken, profile, done) => {

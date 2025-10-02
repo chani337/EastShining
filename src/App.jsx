@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+// App.jsx
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Routes, Route, NavLink, Link } from "react-router-dom";
 import MyPage from "./MyPage.jsx";
 import Chat from "./Chat.jsx";
@@ -13,6 +14,93 @@ const naverImg = "./img/naver.png";
 const kakaoImg = "./img/kakao.png";
 const googleImg = "./img/google.png";
 
+// 프록시를 쓰면 굳이 안 써도 되지만, 환경변수로 절대주소 전환도 가능
+const API = ""; // ""면 상대경로(/auth/...) 사용
+
+/* =============== 세션 사용자 훅 =============== */
+function useAuth() {
+  const [user, setUser] = useState(null);      // {id, nick, img, platform} | null
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const focusCooldownRef = useRef(0);          // 포커스 이벤트 과다 호출 방지
+
+  const refresh = useCallback(async () => {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 8000);
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(`${API}/auth/me`, {
+        method: "GET",
+        credentials: "include",
+        headers: { Accept: "application/json" },
+        cache: "no-store",            // 304 방지
+        signal: ctrl.signal,
+      });
+
+      if (res.status === 401) {
+        // ⚠️ 비로그인: 에러 아님. 조용히 상태만 갱신
+        setUser(null);
+        setError(null);
+        return;
+      }
+      if (!res.ok) {
+        setUser(null);
+        setError(`서버 오류: HTTP ${res.status}`);
+        return;
+      }
+
+      const data = await res.json();
+      setUser(data.user ?? null);
+      setError(null);
+    } catch (err) {
+      // 네트워크 장애만 에러로
+      setUser(null);
+      setError(err?.name === "AbortError" ? "요청 시간 초과" : (err?.message || "네트워크 오류"));
+    } finally {
+      clearTimeout(timer);
+      setLoading(false);
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (res.ok || res.status === 204) {
+        setUser(null);
+        setError(null);
+      } else {
+        setError(`로그아웃 실패: HTTP ${res.status}`);
+      }
+    } catch (e) {
+      setError(e?.message || "로그아웃 중 오류");
+    }
+  }, []);
+
+  // 최초 세션 조회
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  // 탭 포커스 복귀 시 재조회(3초 쿨다운)
+  useEffect(() => {
+    const onFocus = () => {
+      const now = Date.now();
+      if (now - focusCooldownRef.current < 3000) return;
+      focusCooldownRef.current = now;
+      refresh();
+    };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [refresh]);
+
+  return { user, loading, error, refresh, logout, setUser };
+}
+
 /* ========================= Home ========================= */
 function Home() {
   const [name, setName] = useState("이빛나");
@@ -25,7 +113,6 @@ function Home() {
 
   return (
     <>
-      {/* 히어로 + 입력 폼 */}
       <main className="mx-auto max-w-6xl px-6 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           {/* 좌측 미리보기 카드 */}
@@ -120,7 +207,6 @@ function Home() {
         </div>
       </main>
 
-      {/* 하단 랜딩 섹션 */}
       <LandingSections />
     </>
   );
@@ -128,11 +214,14 @@ function Home() {
 
 /* ========================= App Shell ========================= */
 export default function App() {
+  const { user, loading, logout } = useAuth();
+
   const [openSignUp, setOpenSignUp] = useState(false);
   const [openLogin, setOpenLogin] = useState(false);
   const signRef = useRef(null);
   const loginRef = useRef(null);
 
+  // 팝오버 바깥 클릭 닫기
   useEffect(() => {
     const onClick = (e) => {
       if (signRef.current && !signRef.current.contains(e.target)) setOpenSignUp(false);
@@ -142,6 +231,15 @@ export default function App() {
     return () => window.removeEventListener("click", onClick);
   }, []);
 
+  // 초기 로딩 중엔 조용히(보호 라우트가 호출하지 않게)
+  if (loading) {
+    return (
+      <div className="min-h-screen grid place-items-center text-slate-500">
+        <div className="text-sm">세션 확인중…</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_40%,#f7f7fb_100%)] text-slate-900">
       {/* Header */}
@@ -149,110 +247,110 @@ export default function App() {
         <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
           <div className="text-2xl font-extrabold select-none tracking-tight">
             <span className="text-yellow-400">-</span>
-            <NavLink>
-              <Link to="">
-            <span className="text-blue-600">SelfStar.AI</span>
-              </Link>
-            </NavLink>
+            <Link to="/" className="text-blue-600">SelfStar.AI</Link>
             <span className="text-yellow-400">-</span>
           </div>
-    
+
           <nav className="hidden md:flex items-center gap-5 md:gap-7 text-sm font-semibold ml-36">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) => `${base} ${isActive ? active : idle}`}
-              >
-              홈
-            </NavLink>
-
-            <NavLink
-              to="/chat"
-              className={({ isActive }) => `${base} ${isActive ? active : idle}`}
-              >
-              채팅
-            </NavLink>
-
-            <NavLink
-              to="/mypage"
-              className={({ isActive }) => `${base} ${isActive ? active : idle}`}
-               >
-               마이페이지
-            </NavLink>
-
-            <NavLink
-                to="/alerts"
-                className={({ isActive }) => `${base} ${isActive ? active : idle}`}
-                >
-                알림
-            </NavLink>
+            <NavLink to="/" end className={({ isActive }) => `${base} ${isActive ? active : idle}`}>홈</NavLink>
+            <NavLink to="/chat" className={({ isActive }) => `${base} ${isActive ? active : idle}`}>채팅</NavLink>
+            <NavLink to="/mypage" className={({ isActive }) => `${base} ${isActive ? active : idle}`}>마이페이지</NavLink>
+            <NavLink to="/alerts" className={({ isActive }) => `${base} ${isActive ? active : idle}`}>알림</NavLink>
           </nav>
 
+          {/* 오른쪽 액션: 로그인 전/후 분기 */}
           <div className="flex items-center gap-3">
-            {/* 회원가입 팝오버 */}
-            <div className="relative" ref={signRef}>
-              <button
-                className={"btn-ghost " + (openSignUp ? "ring-2 ring-slate-300" : "")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenSignUp((v) => !v);
-                  setOpenLogin(false);
-                }}
-              >
-                무료로 회원가입
-              </button>
-              {openSignUp && (
-                <Popover>
-                  <p className="text-sm text-slate-500 mb-3">무료 회원가입</p>
-                  <div className="flex flex-col gap-3">
-                    <AuthItem label="네이버로 회원가입" img={naverImg} href="http://localhost:4000/auth/naver" />
-                    <AuthItem label="카카오로 회원가입" img={kakaoImg} href="http://localhost:4000/auth/kakao" />
-                    <AuthItem label="Google로 회원가입" img={googleImg} href="http://localhost:4000/auth/google" />
-                  </div>
-                </Popover>
-              )}
-            </div>
+            {user ? (
+              // ✅ 로그인 상태
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 rounded-full border bg-white px-3 py-1.5">
+                  {user.img ? (
+                    <img src={user.img} alt="avatar" className="w-6 h-6 rounded-full object-cover border" />
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-slate-200" />
+                  )}
+                  <span className="text-sm font-semibold">{user.nick || "사용자"}</span>
+                </div>
+                <button
+                  onClick={logout}
+                  className="text-xs text-slate-500 hover:text-red-600 underline underline-offset-2"
+                  title="로그아웃"
+                >
+                  로그아웃
+                </button>
+              </div>
+            ) : (
+              // ❌ 비로그인 상태: 팝오버
+              <>
+                <div className="relative" ref={signRef}>
+                  <button
+                    className={"btn-ghost " + (openSignUp ? "ring-2 ring-slate-300" : "")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenSignUp((v) => !v);
+                      setOpenLogin(false);
+                    }}
+                  >
+                    무료로 회원가입
+                  </button>
+                  {openSignUp && (
+                    <Popover>
+                      <p className="text-sm text-slate-500 mb-3">무료 회원가입</p>
+                      <div className="flex flex-col gap-3">
+                        <AuthItem label="네이버로 회원가입" img={naverImg} href={`${API}/auth/naver` || "/auth/naver"} />
+                        <AuthItem label="카카오로 회원가입" img={kakaoImg} href={`${API}/auth/kakao` || "/auth/kakao"} />
+                        <AuthItem label="Google로 회원가입" img={googleImg} href={`${API}/auth/google` || "/auth/google"} />
+                      </div>
+                    </Popover>
+                  )}
+                </div>
 
-            {/* 로그인 팝오버 */}
-            <div className="relative" ref={loginRef}>
-              <button
-                className={"btn-ghost " + (openLogin ? "ring-2 ring-slate-300" : "")}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenLogin((v) => !v);
-                  setOpenSignUp(false);
-                }}
-              >
-                로그인
-              </button>
-              {openLogin && (
-                <Popover>
-                  <p className="text-sm text-slate-500 mb-3">간편 로그인</p>
-                  <div className="flex flex-col gap-3">
-                    <AuthItem label="네이버로 로그인" img={naverImg} href="http://localhost:4000/auth/naver" />
-                    <AuthItem label="카카오로 로그인" img={kakaoImg} href="http://localhost:4000/auth/kakao" />
-                    <AuthItem label="Google로 로그인" img={googleImg} href="http://localhost:4000/auth/google" />
-                  </div>
-                </Popover>
-              )}
-            </div>
+                <div className="relative" ref={loginRef}>
+                  <button
+                    className={"btn-ghost " + (openLogin ? "ring-2 ring-slate-300" : "")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenLogin((v) => !v);
+                      setOpenSignUp(false);
+                    }}
+                  >
+                    로그인
+                  </button>
+                  {openLogin && (
+                    <Popover>
+                      <p className="text-sm text-slate-500 mb-3">간편 로그인</p>
+                      <div className="flex flex-col gap-3">
+                        <AuthItem label="네이버로 로그인" img={naverImg} href={`${API}/auth/naver` || "/auth/naver"} />
+                        <AuthItem label="카카오로 로그인" img={kakaoImg} href={`${API}/auth/kakao` || "/auth/kakao"} />
+                        <AuthItem label="Google로 로그인" img={googleImg} href={`${API}/auth/google` || "/auth/google"} />
+                      </div>
+                    </Popover>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Routes 영역 */}
+      {/* Routes */}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/mypage" element={<Private user={user}><MyPage /></Private>} />
           <Route path="/chat" element={<Chat />} />
         </Routes>
       </main>
 
-      {/* 전역 푸터: 한 번만 렌더 */}
       <Footer />
     </div>
   );
+}
+
+/* ========================= 보호 라우트 ========================= */
+function Private({ user, children }) {
+  if (!user) return <div className="mx-auto max-w-4xl px-6 py-12 text-slate-500">로그인이 필요합니다.</div>;
+  return children;
 }
 
 /* ========================= UI Utilities ========================= */
@@ -293,7 +391,7 @@ function AuthItem({ label, img, href }) {
   );
 }
 
-/* ========================= Reveal Animations ========================= */
+/* ========================= Reveal / Landing ========================= */
 function useInView(threshold = 0.15) {
   const ref = useRef(null);
   const [show, setShow] = useState(false);
@@ -321,17 +419,12 @@ function Reveal({ children, from = "up", delay = 0 }) {
     "reveal-anim reveal-hide " +
     (from === "left" ? "from-left" : from === "right" ? "from-right" : from === "down" ? "from-down" : "from-up");
   return (
-    <div
-      ref={ref}
-      className={show ? "reveal-anim reveal-show to-center" : start}
-      style={{ transitionDelay: `${delay}ms` }}
-    >
+    <div ref={ref} className={show ? "reveal-anim reveal-show to-center" : start} style={{ transitionDelay: `${delay}ms` }}>
       {children}
     </div>
   );
 }
 
-/* ========================= Landing Sections ========================= */
 function LandingSections() {
   const hero = "./img/hero.png";
   const step1 = "./img/step1.png";
@@ -423,7 +516,7 @@ function LandingSections() {
               </div>
             </Reveal>
 
-            <Reveal from="up" delay={200}>
+              <Reveal from="up" delay={200}>
               <div className="flex items-center justify-center gap-3 mr-24">
                 <span className="text-2xl md:text-3xl text-blue-600">»» Step 3</span>
                 <span className="text-slate-500">연동 설정 후 자동 운영을 시작해보세요.</span>

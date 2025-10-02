@@ -23,6 +23,23 @@ r.get(
   }
 );
 
+// 로그인된 유저 조회
+r.get("/me", (req, res) => {
+  if (!req.user) return res.status(401).json({ user: null })
+  res.json({ user: req.user })
+})
+
+// --- 로그아웃 ---
+r.post("/logout", (req, res) => {
+  req.logout(err => {
+    if (err) return res.status(500).json({ ok:false, message: err.message });
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid");
+      res.json({ ok:true });
+    });
+  });
+});
+
 /* ======== 구글 ========*/
 r.get(
   "/google",

@@ -1,6 +1,6 @@
-import "dotenv/config";
+import dotenv from "dotenv"
+dotenv.config();
 import app from "./app.mjs"
-// import dotenv from "dotenv"
 
 console.log("ID:", process.env.GOOGLE_CLIENT_ID);
 console.log("SECRET length:", process.env.GOOGLE_CLIENT_SECRET?.length);
