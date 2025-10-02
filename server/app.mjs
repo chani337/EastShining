@@ -1,3 +1,4 @@
+// server/app.mjs
 import express from "express"
 import cors from "cors"
 import helmet from "helmet"
@@ -15,21 +16,19 @@ dotenv.config()
 
 const app = express()
 
-// (HTTPS 프록시 뒤에서 쿠키 옵션 'secure'를 쓰게 될 경우 필요)
+// (HTTPS 프록시 뒤에서 secure 쿠키를 쓸 땐 주석 해제)
 // app.set('trust proxy', 1)
 
 // 기본 미들웨어
-app.use(helmet({
-  crossOriginResourcePolicy: false, // 이미지/정적 리소스 교차 제공 이슈 예방(선택)
-}))
+app.use(helmet({ crossOriginResourcePolicy: false }))
 app.use(cors({
-  origin: ["http://localhost:5174", "http://127.0.0.1:5174"], // 프론트 정확히 지정
+  origin: ["http://localhost:5174", "http://127.0.0.1:5174"],
   credentials: true,
 }))
 app.use(express.json())
 app.use(morgan("dev"))
 
-// 세션 & passport
+// 세션 (우리 세션만 사용)
 app.use(session({
   name: "sid",
   secret: process.env.SESSION_SECRET || "selfstar-secret",
@@ -37,57 +36,54 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    // 로컬 개발은 http이므로 secure:false + sameSite:'lax' 가 가장 안전
-    secure: false,
+    secure: false,      // 로컬 http 개발
     sameSite: "lax",
     maxAge: 1000 * 60 * 60 * 24, // 1 day
   },
 }))
+
+// OAuth 핸드셰이크만 passport 사용 (세션은 사용하지 않음)
 app.use(passport.initialize())
-app.use(passport.session())
 
-// 세션 직렬화/복원 : user 전체 대신 식별자만 저장
-passport.serializeUser((user, done) => {
-  done(null, user.user_inherent)   // DB PK나 social_id만 저장
-})
-
-passport.deserializeUser(async (inherent, done) => {
+// 매 요청마다 세션 키로 유저 로드 → req.user 세팅
+app.use(async (req, _res, next) => {
   try {
+    const inherent = req.session?.user_inherent
+    if (!inherent) return next()
     const user = await findUserByInherent(inherent)
-    done(null, user || null)
+    req.user = user || null
+    next()
   } catch (err) {
-    done(err, null)
+    next(err)
   }
 })
 
 // 헬스체크
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({ ok: true })
+})
+
+// 로그인 상태 확인(비로그인도 200으로 통일 → 콘솔 깔끔)
+app.get("/auth/me", (req, res) => {
+  if (req.user) {
+    const u = req.user
+    return res.json({
+      ok: true, authenticated: true,
+      user: {
+        id: u.user_id,
+        inherent: u.user_inherent,
+        nick: u.user_nick || u.user_name || null,
+        img: u.user_img || null,
+        platform: u.user_platform || null,
+      }
+    })
+  }
+  return res.json({ ok: true, authenticated: false, user: null })
 })
 
 // 라우트
 app.use("/api/posts", postsRoute)
 app.use("/auth", authRoute)
-
-// 로그인 상태 확인(비로그인도 200으로 통일해 콘솔 깔끔)
-app.get("/auth/me", (req, res) => {
-  const row = req.user || null;
-  if (row) {
-    return res.json({
-      ok: true,
-      authenticated: true,
-      user: {
-        id: row.user_id,
-        inherent: row.user_inherent,
-        nick: row.user_nick || row.user_name || null,
-        img: row.user_img || null,
-        platform: row.user_platform || null,
-      },
-    });
-  }
-  return res.json({ ok: true, authenticated: false, user: null });
-});
-
 
 // 에러 핸들러
 app.use(notFound)

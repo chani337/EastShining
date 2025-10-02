@@ -51,7 +51,8 @@ function useAuth() {
       }
 
       const data = await res.json();
-      setUser(data.user ?? null);
+      console.log("[auth/me]", data);
+      setUser(data.authenticated ? data.user : null);
       setError(null);
     } catch (err) {
       setUser(null);
