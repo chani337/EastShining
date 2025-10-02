@@ -1,4 +1,3 @@
-// src/components/Footer.jsx
 export default function Footer() {
   const year = new Date().getFullYear();
 
@@ -13,39 +12,48 @@ export default function Footer() {
               <span className="text-blue-600">SelfStar</span>.AI
             </div>
             <p className="text-sm text-slate-600 leading-6">
-              SelfStar에서 가상의 인물을<br/>
-              제작하여 인플루언서로 활동해보세요.<br/>
+              SelfStar에서 가상의 인물을<br />
+              제작하여 인플루언서로 활동해보세요.<br />
               저희가 도와드릴게요.
             </p>
-            {/* 소셜 아이콘 */}
+
+            {/* 소셜 아이콘 (Instagram / GitHub / Email 만) */}
             <div className="flex items-center gap-4 pt-2">
-              <a aria-label="Instagram" href="#" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor"/>
-                  <circle cx="12" cy="12" r="4" stroke="currentColor"/>
-                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
+              {/* Instagram */}
+              <a
+                aria-label="Instagram"
+                href="#"
+                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" />
+                  <circle cx="12" cy="12" r="4" stroke="currentColor" />
+                  <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
                 </svg>
               </a>
-              <a aria-label="Threads" href="#" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M7 12c0-3 2-5 5-5s5 2 5 6-3 7-7 7-6-2-6-6 2-6 6-6" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+
+              {/* GitHub */}
+              {/* path SVG 벡터 아이콘 경로 데이터 d
+              즉, viewBox가 0 0 24 24로 설계가 되어있어서 어떤 크기로든 깔끔하게 스케일링 가능*/}
+              <a
+                aria-label="GitHub"
+                href="#"
+                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 .296c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.016-2.04-3.338.726-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.09-.744.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.835 2.807 1.305 3.492.998.108-.776.418-1.305.762-1.606-2.665-.303-5.466-1.333-5.466-5.932 0-1.31.469-2.381 1.236-3.221-.124-.303-.536-1.523.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.655 1.653.243 2.873.119 3.176.77.84 1.235 1.911 1.235 3.221 0 4.61-2.803 5.625-5.475 5.921.43.371.823 1.102.823 2.222 0 1.606-.015 2.899-.015 3.293 0 .319.216.694.825.576C20.565 22.092 24 17.592 24 12.296c0-6.627-5.373-12-12-12z" />
                 </svg>
               </a>
-              <a aria-label="YouTube" href="#" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="7" width="18" height="10" rx="3" stroke="currentColor"/>
-                  <path d="M11 10l4 2-4 2v-4z" fill="currentColor"/>
-                </svg>
-              </a>
-              <a aria-label="GitHub" href="#" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.6-1.5-1.5-1.9-1.5-1.9-1.2-.8.1-.8.1-.8 1.3.1 2 .  1.4 2 .  1.4 1.2 2 3.1 1.4 3.8 1.1.1-.9.5-1.4.9-1.8-2.6-.3-5.4-1.3-5.4-6a4.7 4.7 0 0 1 1.2-3.3 4.4 4.4 0 0 1 .1-3.3s1-.3 3.4 1.3a11.8 11.8 0 0 1 6.2 0C17.5 5 18.5 5.3 18.5 5.3a4.4 4.4 0 0 1 .1 3.3 4.7 4.7 0 0 1 1.2 3.3c0 4.7-2.8 5.7-5.4 6 .5.4 1 1.2 1 2.5v3.7c0 .4.2.7.8.6A12 12 0 0 0 12 .5Z"/>
-                </svg>
-              </a>
-              <a aria-label="Email" href="mailto:hello@selfstar.ai" className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor"/>
-                  <path d="M4 7l8 6 8-6" stroke="currentColor"/>
+
+              {/* Email */}
+              <a
+                aria-label="Email"
+                href="mailto:hello@selfstar.ai"
+                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" />
+                  <path d="M4 7l8 6 8-6" stroke="currentColor" />
                 </svg>
               </a>
             </div>
@@ -81,12 +89,15 @@ export default function Footer() {
 
         {/* 구분선 */}
         <div className="my-8 border-t border-slate-200" />
-        
+
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* 언어 선택 (더미) */}
           <div className="flex items-center gap-3">
             <label htmlFor="lang" className="text-sm text-slate-600">언어</label>
-            <select id="lang" className="h-9 px-3 rounded-xl border border-slate-300 bg-white/90 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
+            <select
+              id="lang"
+              className="h-9 px-3 rounded-xl border border-slate-300 bg-white/90 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
               <option>한국어</option>
               <option>English</option>
             </select>

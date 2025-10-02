@@ -14,15 +14,15 @@ const naverImg = "./img/naver.png";
 const kakaoImg = "./img/kakao.png";
 const googleImg = "./img/google.png";
 
-// 프록시를 쓰면 굳이 안 써도 되지만, 환경변수로 절대주소 전환도 가능
-const API = ""; // ""면 상대경로(/auth/...) 사용
+const API = "";
 
 /* =============== 세션 사용자 훅 =============== */
 function useAuth() {
-  const [user, setUser] = useState(null);      // {id, nick, img, platform} | null
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const focusCooldownRef = useRef(0);          // 포커스 이벤트 과다 호출 방지
+  // 포커스 이벤트 과다 호출 방지
+  const focusCooldownRef = useRef(0);
 
   const refresh = useCallback(async () => {
     const ctrl = new AbortController();
@@ -35,12 +35,11 @@ function useAuth() {
         method: "GET",
         credentials: "include",
         headers: { Accept: "application/json" },
-        cache: "no-store",            // 304 방지
+        cache: "no-store",
         signal: ctrl.signal,
       });
 
       if (res.status === 401) {
-        // ⚠️ 비로그인: 에러 아님. 조용히 상태만 갱신
         setUser(null);
         setError(null);
         return;
@@ -55,7 +54,6 @@ function useAuth() {
       setUser(data.user ?? null);
       setError(null);
     } catch (err) {
-      // 네트워크 장애만 에러로
       setUser(null);
       setError(err?.name === "AbortError" ? "요청 시간 초과" : (err?.message || "네트워크 오류"));
     } finally {
@@ -81,12 +79,10 @@ function useAuth() {
     }
   }, []);
 
-  // 최초 세션 조회
   useEffect(() => {
     refresh();
   }, [refresh]);
 
-  // 탭 포커스 복귀 시 재조회(3초 쿨다운)
   useEffect(() => {
     const onFocus = () => {
       const now = Date.now();
@@ -231,7 +227,6 @@ export default function App() {
     return () => window.removeEventListener("click", onClick);
   }, []);
 
-  // 초기 로딩 중엔 조용히(보호 라우트가 호출하지 않게)
   if (loading) {
     return (
       <div className="min-h-screen grid place-items-center text-slate-500">
@@ -245,12 +240,14 @@ export default function App() {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
         <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
+          {/* 로고: Link 한 번만 사용 (중첩 방지) */}
           <div className="text-2xl font-extrabold select-none tracking-tight">
             <span className="text-yellow-400">-</span>
             <Link to="/" className="text-blue-600">SelfStar.AI</Link>
             <span className="text-yellow-400">-</span>
           </div>
 
+          {/* 네비게이션: NavLink만 각각 사용 (중첩 없음) */}
           <nav className="hidden md:flex items-center gap-5 md:gap-7 text-sm font-semibold ml-36">
             <NavLink to="/" end className={({ isActive }) => `${base} ${isActive ? active : idle}`}>홈</NavLink>
             <NavLink to="/chat" className={({ isActive }) => `${base} ${isActive ? active : idle}`}>채팅</NavLink>
@@ -261,7 +258,6 @@ export default function App() {
           {/* 오른쪽 액션: 로그인 전/후 분기 */}
           <div className="flex items-center gap-3">
             {user ? (
-              // ✅ 로그인 상태
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 rounded-full border bg-white px-3 py-1.5">
                   {user.img ? (
@@ -280,7 +276,6 @@ export default function App() {
                 </button>
               </div>
             ) : (
-              // ❌ 비로그인 상태: 팝오버
               <>
                 <div className="relative" ref={signRef}>
                   <button
@@ -337,8 +332,17 @@ export default function App() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/mypage" element={<Private user={user}><MyPage /></Private>} />
+          <Route
+            path="/mypage"
+            element={
+              <Private user={user}>
+                <MyPage />
+              </Private>
+            }
+          />
           <Route path="/chat" element={<Chat />} />
+          {/* 간단한 플레이스홀더 (네비 메뉴 존재하므로 라우트 추가) */}
+          <Route path="/alerts" element={<Alerts />} />
         </Routes>
       </main>
 
@@ -351,6 +355,16 @@ export default function App() {
 function Private({ user, children }) {
   if (!user) return <div className="mx-auto max-w-4xl px-6 py-12 text-slate-500">로그인이 필요합니다.</div>;
   return children;
+}
+
+/* ========================= 단순 알림 페이지 ========================= */
+function Alerts() {
+  return (
+    <div className="mx-auto max-w-4xl px-6 py-12">
+      <h2 className="text-xl font-bold mb-2">알림</h2>
+      <p className="text-slate-600">알림 기능은 준비 중입니다.</p>
+    </div>
+  );
 }
 
 /* ========================= UI Utilities ========================= */
@@ -516,7 +530,7 @@ function LandingSections() {
               </div>
             </Reveal>
 
-              <Reveal from="up" delay={200}>
+            <Reveal from="up" delay={200}>
               <div className="flex items-center justify-center gap-3 mr-24">
                 <span className="text-2xl md:text-3xl text-blue-600">»» Step 3</span>
                 <span className="text-slate-500">연동 설정 후 자동 운영을 시작해보세요.</span>

@@ -98,7 +98,7 @@ export default function Chat() {
 
   // 우측 도우미
   const [vibe, setVibe] = useState("insta");
-  const [rightPreview] = useState(null); // 항상 null → 프리뷰 이미지는 표시하지 않음
+  const [rightPreview] = useState(null); // 항상 null → 프리뷰 이미지는 표시하지 않음 개발 X
 
   const caption = useMemo(() => mockCaption(prompt, vibe), [prompt, vibe]);
   const hashtags = useMemo(() => mockHashtags(prompt), [prompt]);
