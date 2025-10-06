@@ -14,7 +14,7 @@ const naverImg = "./img/naver.png";
 const kakaoImg = "./img/kakao.png";
 const googleImg = "./img/google.png";
 
-const API = "";
+const API = "/auth";
 
 /* =============== 세션 사용자 훅 =============== */
 function useAuth() {
@@ -31,7 +31,7 @@ function useAuth() {
     try {
       setLoading(true);
 
-      const res = await fetch(`${API}/auth/me`, {
+  const res = await fetch(`${API}/me`, {
         method: "GET",
         credentials: "include",
         headers: { Accept: "application/json" },
@@ -65,7 +65,7 @@ function useAuth() {
 
   const logout = useCallback(async () => {
     try {
-      const res = await fetch(`${API}/auth/logout`, {
+  const res = await fetch(`${API}/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -291,14 +291,15 @@ export default function App() {
                   </button>
                   {openSignUp && (
                     <Popover>
-                      <p className="text-sm text-slate-500 mb-3">무료 회원가입</p>
-                      <div className="flex flex-col gap-3">
-                        <AuthItem label="네이버로 회원가입" img={naverImg} href={`${API}/auth/naver` || "/auth/naver"} />
-                        <AuthItem label="카카오로 회원가입" img={kakaoImg} href={`${API}/auth/kakao` || "/auth/kakao"} />
-                        <AuthItem label="Google로 회원가입" img={googleImg} href={`${API}/auth/google` || "/auth/google"} />
+                      <SignUpForm onSuccess={() => setOpenSignUp(false)} />
+                      <div className="flex flex-col gap-3 mt-4">
+                        <AuthItem label="네이버로 회원가입" img={naverImg} href={`${API}/naver`} />
+                        <AuthItem label="카카오로 회원가입" img={kakaoImg} href={`${API}/kakao`} />
+                        <AuthItem label="Google로 회원가입" img={googleImg} href={`${API}/google`} />
                       </div>
                     </Popover>
                   )}
+
                 </div>
 
                 <div className="relative" ref={loginRef}>
@@ -316,9 +317,9 @@ export default function App() {
                     <Popover>
                       <p className="text-sm text-slate-500 mb-3">간편 로그인</p>
                       <div className="flex flex-col gap-3">
-                        <AuthItem label="네이버로 로그인" img={naverImg} href={`${API}/auth/naver` || "/auth/naver"} />
-                        <AuthItem label="카카오로 로그인" img={kakaoImg} href={`${API}/auth/kakao` || "/auth/kakao"} />
-                        <AuthItem label="Google로 로그인" img={googleImg} href={`${API}/auth/google` || "/auth/google"} />
+                        <AuthItem label="네이버로 로그인" img={naverImg} href={`${API}/naver`} />
+                        <AuthItem label="카카오로 로그인" img={kakaoImg} href={`${API}/kakao`} />
+                        <AuthItem label="Google로 로그인" img={googleImg} href={`${API}/google`} />
                       </div>
                     </Popover>
                   )}
