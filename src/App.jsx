@@ -4,6 +4,8 @@ import { Routes, Route, NavLink, Link } from "react-router-dom";
 import MyPage from "./MyPage.jsx";
 import Chat from "./Chat.jsx";
 import Footer from "/components/Footer.jsx";
+import SignUpForm from "./components/ui/SignUpForm.jsx";
+// ...existing code...
 
 const base = "px-3 py-1.5 rounded-full transition";
 const active = "bg-blue-600 text-white shadow";
@@ -294,7 +296,7 @@ export default function App() {
                       <SignUpForm onSuccess={() => setOpenSignUp(false)} />
                       <div className="flex flex-col gap-3 mt-4">
                         <AuthItem label="네이버로 회원가입" img={naverImg} href={`${API}/naver`} />
-                        <AuthItem label="카카오로 회원가입" img={kakaoImg} href={`${API}/kakao`} />
+                        <AuthItem label="카카오로 회원가입" img={kakaoImg} href={`${API}/kakao/login`} />
                         <AuthItem label="Google로 회원가입" img={googleImg} href={`${API}/google`} />
                       </div>
                     </Popover>
