@@ -1,16 +1,35 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# EastShining 프로젝트
 
-Currently, two official plugins are available:
+## 개요
+React(Vite) 프론트엔드와 FastAPI 백엔드로 구성된 소셜 회원가입/로그인 플랫폼입니다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 주요 기능
+- 카카오, 네이버, 구글 등 소셜 로그인/회원가입 연동
+- 이메일 회원가입 및 로그인
+- 사용자 정보 관리, 마이페이지, 채팅 등
 
-## React Compiler
+## 실행 방법
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. 백엔드(FastAPI)
+```bash
+uvicorn app.__main__:app --reload --host 0.0.0.0 --port 8000
+```
 
-## Expanding the ESLint configuration
+### 2. 프론트엔드(React/Vite)
+```bash
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### 3. 소셜 로그인 연동
+- 카카오/네이버/구글 개발자 콘솔에서 redirect_uri를 반드시 등록해야 합니다.
+- Codespaces/배포 환경에서는 외부 주소, 로컬에서는 localhost 주소를 등록하세요.
+
+## 폴더 구조
+- `app/` : FastAPI 백엔드
+- `src/` : React 프론트엔드
+- `components/` : 프론트 공용 컴포넌트
+
+## 문의/기여
+이슈 및 PR 환영합니다.
