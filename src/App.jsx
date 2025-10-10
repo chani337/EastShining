@@ -1,6 +1,6 @@
 // App.jsx
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { Routes, Route, NavLink, Link } from "react-router-dom";
+import { Routes, Route, NavLink, Link, useNavigate } from "react-router-dom";
 import MyPage from "./MyPage.jsx";
 import Chat from "./Chat.jsx";
 import Footer from "/components/Footer.jsx";
@@ -217,8 +217,11 @@ export default function App() {
 
   const [openSignUp, setOpenSignUp] = useState(false);
   const [openLogin, setOpenLogin] = useState(false);
+  const [showSessionModal, setShowSessionModal] = useState(false);
+  const [unlinking, setUnlinking] = useState(false);
   const signRef = useRef(null);
   const loginRef = useRef(null);
+  const navigate = useNavigate();
 
   // 팝오버 바깥 클릭 닫기
   useEffect(() => {
@@ -237,6 +240,48 @@ export default function App() {
       </div>
     );
   }
+
+  const handleKakaoAuthClick = (e) => {
+    if (user) {
+      // 세션이 이미 있으면 모달로 분기
+      e.preventDefault();
+      setShowSessionModal(true);
+    }
+    // 세션이 없으면 기본 이동(href) 그대로 진행
+  };
+
+  const handleContinueAsCurrent = () => {
+    setShowSessionModal(false);
+    setOpenLogin(false);
+    setOpenSignUp(false);
+    // 현재 세션 유지하고 마이페이지로 안내
+    navigate("/mypage");
+  };
+
+  const handleSwitchAccount = () => {
+    setShowSessionModal(false);
+    setOpenLogin(false);
+    setOpenSignUp(false);
+    // 카카오 로그인 페이지로 이동 (prompt=login 적용됨)
+    window.location.href = `${API}/kakao/login`;
+  };
+
+  const handleUnlinkAndSwitch = async () => {
+    try {
+      setUnlinking(true);
+      const res = await fetch(`${API}/kakao/unlink`, { method: "POST", credentials: "include" });
+      // 401이면 세션 없음이므로 바로 로그인으로 이동
+      if (!res.ok && res.status !== 401) {
+        console.warn("카카오 연결 해제 실패", res.status);
+      }
+    } catch (e) {
+      console.warn("카카오 연결 해제 오류", e);
+    } finally {
+      setUnlinking(false);
+      setShowSessionModal(false);
+      window.location.href = `${API}/kakao/login`;
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_40%,#f7f7fb_100%)] text-slate-900">
@@ -296,7 +341,7 @@ export default function App() {
                       <SignUpForm onSuccess={() => setOpenSignUp(false)} />
                       <div className="flex flex-col gap-3 mt-4">
                         <AuthItem label="네이버로 회원가입" img={naverImg} href={`${API}/naver`} />
-                        <AuthItem label="카카오로 회원가입" img={kakaoImg} href={`${API}/kakao/login`} />
+                        <AuthItem label="카카오로 회원가입" img={kakaoImg} href={`${API}/kakao/login`} onClick={handleKakaoAuthClick} />
                         <AuthItem label="Google로 회원가입" img={googleImg} href={`${API}/google`} />
                       </div>
                     </Popover>
@@ -320,7 +365,7 @@ export default function App() {
                       <p className="text-sm text-slate-500 mb-3">간편 로그인</p>
                       <div className="flex flex-col gap-3">
                         <AuthItem label="네이버로 로그인" img={naverImg} href={`${API}/naver`} />
-                        <AuthItem label="카카오로 로그인" img={kakaoImg} href={`${API}/kakao`} />
+                        <AuthItem label="카카오로 로그인" img={kakaoImg} href={`${API}/kakao/login`} onClick={handleKakaoAuthClick} />
                         <AuthItem label="Google로 로그인" img={googleImg} href={`${API}/google`} />
                       </div>
                     </Popover>
@@ -351,6 +396,17 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* 세션 선택 모달 */}
+      <SessionChoiceModal
+        open={showSessionModal}
+        user={user}
+        unlinking={unlinking}
+        onClose={() => setShowSessionModal(false)}
+        onContinue={handleContinueAsCurrent}
+        onSwitch={handleSwitchAccount}
+        onUnlinkAndSwitch={handleUnlinkAndSwitch}
+      />
     </div>
   );
 }
@@ -393,10 +449,11 @@ function Field({ label, hint, children }) {
   );
 }
 
-function AuthItem({ label, img, href }) {
+function AuthItem({ label, img, href, onClick }) {
   return (
     <a
       href={href}
+      onClick={onClick}
       className="w-full flex items-center justify-start gap-3 px-6 py-3 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition"
     >
       {img ? (
@@ -439,6 +496,48 @@ function Reveal({ children, from = "up", delay = 0 }) {
   return (
     <div ref={ref} className={show ? "reveal-anim reveal-show to-center" : start} style={{ transitionDelay: `${delay}ms` }}>
       {children}
+    </div>
+  );
+}
+
+/* ========================= Session Choice Modal ========================= */
+function SessionChoiceModal({ open, user, onClose, onContinue, onSwitch, onUnlinkAndSwitch, unlinking }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-[100]">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="absolute inset-0 flex items-center justify-center p-6">
+        <div className="w-full max-w-md rounded-2xl bg-white shadow-xl border p-6">
+          <div className="flex items-center gap-3 mb-4">
+            {user?.img ? (
+              <img src={user.img} alt="avatar" className="w-10 h-10 rounded-full object-cover border" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-slate-200" />
+            )}
+            <div>
+              <div className="text-sm text-slate-500">현재 로그인된 사용자</div>
+              <div className="text-base font-semibold">{user?.nick || "사용자"}</div>
+            </div>
+          </div>
+
+          <p className="text-sm text-slate-600 mb-5">
+            이 계정으로 계속하시겠어요? 다른 카카오 계정으로 로그인하려면 계정 선택 화면으로 이동합니다.
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <button onClick={onContinue} className="btn-primary w-full">이 계정으로 계속</button>
+            <button onClick={onSwitch} className="w-full px-4 py-2 rounded-lg border hover:bg-slate-50">다른 계정으로 로그인</button>
+            <button
+              onClick={onUnlinkAndSwitch}
+              disabled={unlinking}
+              className="w-full px-4 py-2 rounded-lg border text-red-600 hover:bg-red-50 disabled:opacity-60"
+              title="카카오 연결을 해제한 뒤 새로 로그인합니다. (관리자 키 필요)"
+            >
+              {unlinking ? "연결 해제 중…" : "카카오 연결 해제 후 새로 로그인"}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
